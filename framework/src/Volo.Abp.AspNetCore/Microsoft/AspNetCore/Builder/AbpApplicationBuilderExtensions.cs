@@ -13,8 +13,12 @@ using Volo.Abp.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder
 {
+    /// <summary>
+    /// abp应用构造器的扩展方法
+    /// </summary>
     public static class AbpApplicationBuilderExtensions
     {
+        //  异常处理中间件标记
         private const string ExceptionHandlingMiddlewareMarker = "_AbpExceptionHandlingMiddleware_Added";
 
         public static void InitializeApplication([NotNull] this IApplicationBuilder app)
@@ -22,41 +26,65 @@ namespace Microsoft.AspNetCore.Builder
             Check.NotNull(app, nameof(app));
 
             app.ApplicationServices.GetRequiredService<ObjectAccessor<IApplicationBuilder>>().Value = app;
-            var application = app.ApplicationServices.GetRequiredService<IAbpApplicationWithExternalServiceProvider>();
-            var applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
 
+            //  初始化module
+            var application = app.ApplicationServices.GetRequiredService<IAbpApplicationWithExternalServiceProvider>();
+            //  应用生命周期
+            var applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+            
+            //  当应用程序主机执行正常关闭时触发。 在此事件完成之前，关闭将被阻止。
             applicationLifetime.ApplicationStopping.Register(() =>
             {
                 application.Shutdown();
             });
 
+            //  当应用程序主机执行正常关闭时触发。 在此事件完成之前，关闭将被阻止。
             applicationLifetime.ApplicationStopped.Register(() =>
             {
                 application.Dispose();
             });
 
+            //  Q:注册应用服务
             application.Initialize(app.ApplicationServices);
         }
 
+        /// <summary>
+        /// 注册审计的中间件
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseAuditing(this IApplicationBuilder app)
         {
             return app
                 .UseMiddleware<AbpAuditingMiddleware>();
         }
-
+        /// <summary>
+        /// 注册工作单元的中间件
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseUnitOfWork(this IApplicationBuilder app)
         {
             return app
                 .UseAbpExceptionHandling()
                 .UseMiddleware<AbpUnitOfWorkMiddleware>();
         }
-
+        /// <summary>
+        /// Q:
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseCorrelationId(this IApplicationBuilder app)
         {
             return app
                 .UseMiddleware<AbpCorrelationIdMiddleware>();
         }
-
+        /// <summary>
+        /// Q:本地化
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="optionsAction"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseAbpRequestLocalization(this IApplicationBuilder app,
             Action<RequestLocalizationOptions> optionsAction = null)
         {
@@ -66,7 +94,11 @@ namespace Microsoft.AspNetCore.Builder
 
             return app.UseMiddleware<AbpRequestLocalizationMiddleware>();
         }
-
+        /// <summary>
+        /// 注册异常拦截的中间件
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseAbpExceptionHandling(this IApplicationBuilder app)
         {
             if (app.Properties.ContainsKey(ExceptionHandlingMiddlewareMarker))
@@ -77,7 +109,11 @@ namespace Microsoft.AspNetCore.Builder
             app.Properties[ExceptionHandlingMiddlewareMarker] = true;
             return app.UseMiddleware<AbpExceptionHandlingMiddleware>();
         }
-
+        /// <summary>
+        /// 注册声明的中间件
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseAbpClaimsMap(this IApplicationBuilder app)
         {
             return app.UseMiddleware<AbpClaimsMapMiddleware>();
