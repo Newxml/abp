@@ -7,6 +7,8 @@ namespace Microsoft.AspNetCore.Builder
     {
         public static IApplicationBuilder UseVirtualFiles(this IApplicationBuilder app)
         {
+            //  注册文件目录
+            var a = app.ApplicationServices.GetRequiredService<IWebContentFileProvider>();
             return app.UseStaticFiles(
                 new StaticFileOptions
                 {

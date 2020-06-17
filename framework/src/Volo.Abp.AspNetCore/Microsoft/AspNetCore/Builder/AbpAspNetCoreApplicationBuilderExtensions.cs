@@ -8,9 +8,11 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class AbpAspNetCoreApplicationBuilderExtensions
     {
+        
         /// <summary>
         /// Maps endpoints configured with the <see cref="AbpEndpointRouterOptions"/>.
         /// It internally uses the standard app.UseEndpoints(...) method.
+        /// 配置访问点
         /// </summary>
         /// <param name="app">The application builder</param>
         /// <param name="additionalConfigurationAction">Additional (and optional) endpoint configuration</param>
@@ -30,6 +32,7 @@ namespace Microsoft.AspNetCore.Builder
 
             return app.UseEndpoints(endpoints =>
             {
+                //  创建一个配置路由的单例 
                 using (var scope = app.ApplicationServices.CreateScope())
                 {
                     var context = new EndpointRouteBuilderContext(endpoints, scope.ServiceProvider);

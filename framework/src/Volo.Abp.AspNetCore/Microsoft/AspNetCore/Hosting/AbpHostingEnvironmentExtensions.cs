@@ -5,6 +5,12 @@ namespace Microsoft.AspNetCore.Hosting
 {
     public static class AbpHostingEnvironmentExtensions
     {
+        /// <summary>
+        /// 好像被VirtualFileSystemApplicationBuilderExtensions替代了
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
         public static IConfigurationRoot BuildConfiguration(
             this IWebHostEnvironment env,
             AbpConfigurationBuilderOptions options = null)
