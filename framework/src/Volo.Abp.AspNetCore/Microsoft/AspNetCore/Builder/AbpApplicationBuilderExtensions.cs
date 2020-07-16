@@ -80,7 +80,7 @@ namespace Microsoft.AspNetCore.Builder
                 .UseMiddleware<AbpCorrelationIdMiddleware>();
         }
         /// <summary>
-        /// Q:本地化
+        /// 注册本地化中间件
         /// </summary>
         /// <param name="app"></param>
         /// <param name="optionsAction"></param>
